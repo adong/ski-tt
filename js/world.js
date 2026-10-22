@@ -556,7 +556,9 @@
       v.cam.updateProjectionMatrix();
       far.position.copy(v.cam.position);
       flakes.position.set(v.cam.position.x, v.cam.position.y - 10, v.cam.position.z);
+      if (v.pre) v.pre();
       renderer.render(scene, v.cam);
+      if (v.post) v.post();
     }
   }
 

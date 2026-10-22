@@ -3156,7 +3156,9 @@ if (typeof document !== 'undefined') document.title = `${window.SKI_TITLE} · Te
       v.cam.updateProjectionMatrix();
       far.position.copy(v.cam.position);
       flakes.position.set(v.cam.position.x, v.cam.position.y - 10, v.cam.position.z);
+      if (v.pre) v.pre();
       renderer.render(scene, v.cam);
+      if (v.post) v.post();
     }
   }
 
@@ -3548,18 +3550,18 @@ if (typeof document !== 'undefined') document.title = `${window.SKI_TITLE} · Te
   // the title screen's skier: the chosen boy skiing the chosen slope by himself, round and round
   function newDemo() {
     const who = save.who === 'both' ? HUMANS : [save.who];
-    makeRace({ course, players: who.map((id) => ({ who: id, level: 'normal', pilot: 'good' })), cpu: save.mode === 'race', seed: 1 + Math.floor(Math.random() * 99) });
+    makeRace({ course, players: who.map((id) => ({ who: id, level: 'normal', pilot: 'good' })), cpu: save.mode === 'race', seed: 1 + Math.floor(Math.random() * 99) }, true);
     race.step(R.PHYS.countIn + 0.01);
     W.resetGates();
   }
 
   // ---------------------------------------------------------------- a race
-  function makeRace(o) {
+  function makeRace(o, demo) {
     for (const m of models) K.remove(m, W.scene());
     race = R.create(o);
     players = race.skiers.filter((sk) => sk.human).map((sk) => sk.id);
     models = race.skiers.map((sk) => {
-      const m = K.make(sk.id, { tag: race.skiers.length > 1 });
+      const m = K.make(sk.id, { tag: race.skiers.length > 1 && !demo });
       K.add(m, W.scene());
       return m;
     });
@@ -3700,6 +3702,8 @@ if (typeof document !== 'undefined') document.title = `${window.SKI_TITLE} · Te
       buddy.side = sk.x > 0 ? -1 : 1;
       buddy.pop = 0;
     }
+    buddy.leaving = false; // called again while he was waving goodbye: he stays
+    buddy.leave = 0;
     const [emoji, name] = TREATS[Math.floor(Math.random() * TREATS.length)];
     seq = { t: 0, entry, emoji, name, tossed: false, helped: false, bye: false, ball: false };
     $('buddyBtn').classList.add('here');
@@ -4202,6 +4206,8 @@ if (typeof document !== 'undefined') document.title = `${window.SKI_TITLE} · Te
       if (!two) views = [{ cam: cams[0], x: 0, y: 0, w: 1, h: 1 }];
       else if (side) views = [{ cam: cams[0], x: 0, y: 0, w: 0.5, h: 1 }, { cam: cams[1], x: 0.5, y: 0, w: 0.5, h: 1 }];
       else views = [{ cam: cams[0], x: 0, y: 0, w: 1, h: 0.5 }, { cam: cams[1], x: 0, y: 0.5, w: 1, h: 0.5 }];
+      // in your own view, your brother never stands between you and your camera
+      if (two) views.forEach((v, i) => { v.pre = () => hideBlocker(i); v.post = showAll; });
     }
     const sp = $('split');
     if (two) Object.assign(sp.style, side ? { left: `${w / 2 - 3}px`, top: '0', width: '6px', height: '100%' } : { left: '0', top: `${h / 2 - 3}px`, width: '100%', height: '6px' });
@@ -4243,6 +4249,18 @@ if (typeof document !== 'undefined') document.title = `${window.SKI_TITLE} · Te
       Object.assign(el.style, { left: `${x}px`, top: `${y}px`, width: `${two && side ? w * 0.48 : w * 0.94}px` });
     }
   }
+
+  function hideBlocker(i) {
+    if (!race) return;
+    const me = race.skiers[i];
+    race.skiers.forEach((sk, j) => {
+      if (j === i) return;
+      const behind = me.s - sk.s;
+      const block = behind > -1 && behind < 10 && Math.abs(sk.x - me.x) < 2.6;
+      models[j].outer.visible = !block;
+    });
+  }
+  function showAll() { models.forEach((m) => { m.outer.visible = true; }); }
 
   // ---------------------------------------------------------------- toasts and confetti (2D, on top)
   function toast(text, kind, pl) {
