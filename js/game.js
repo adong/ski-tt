@@ -438,7 +438,7 @@
     frame(dt);
   }
 
-  function frame(dt) {
+  function frame(dt, noDraw) {
     if (state === 'loading') return;
     if (!paused) {
       if (state === 'home') tickDemo(dt);
@@ -448,6 +448,7 @@
       fiveCool = Math.max(0, fiveCool - dt);
     }
     W.update(paused ? 0 : dt, views[0] && views[0].cam);
+    if (noDraw) return;
     W.render(views);
     drawFx(paused ? 0 : dt);
   }
@@ -470,9 +471,9 @@
   // the home and results panels cover one side: shift the picture into the free part
   function sideView(cam) {
     const w = window.innerWidth, h = window.innerHeight;
-    cam.fov = 50;
-    if (w / h > 1.1) cam.setViewOffset(w * 1.6, h, w * 0.6, 0, w, h);
-    else cam.setViewOffset(w, h * 1.7, 0, h * 0.7 - h * 0.15, w, h);
+    // landscape: the free part is the left 40%; portrait: the top third (a taller picture, so a wider lens)
+    if (w / h > 1.1) { cam.fov = 50; cam.setViewOffset(w * 1.6, h, w * 0.6, 0, w, h); }
+    else { cam.fov = 78; cam.setViewOffset(w, h * 1.7, 0, h * 0.67, w, h); }
     views = [{ cam, x: 0, y: 0, w: 1, h: 1 }];
   }
 
@@ -897,9 +898,10 @@
   const game = {
     autoPause: true,
     start(o) { startRace(o || {}); return game.info(); },
-    step(seconds) {
+    // quick: only draw the last frame (for long fast-forwards in tests)
+    step(seconds, quick) {
       const n = Math.max(1, Math.round((seconds || 0) * 60));
-      for (let i = 0; i < n; i++) frame(1 / 60);
+      for (let i = 0; i < n; i++) frame(1 / 60, quick && i < n - 1);
       return game.info();
     },
     hold(on) { held = !!on; },

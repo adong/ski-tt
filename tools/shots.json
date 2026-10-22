@@ -1,0 +1,4 @@
+[
+ { "label": "prefs", "js": "localStorage.setItem('claudeGames.muted', '1'); localStorage.removeItem('claudeGames.lang'); localStorage.removeItem('skiTT.v1'); location.reload(); 'reload'", "wait": 4500 },
+ { "label": "title", "js": "game.hold(true); game.step(2.6); game.step(0.2); 'demo at ' + game.info().skiers[0].s + ' m'", "wait": 900, "shot": "screenshot" }
+]

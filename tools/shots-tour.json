@@ -1,0 +1,10 @@
+[
+ { "label": "prefs", "js": "localStorage.setItem('claudeGames.muted', '1'); localStorage.removeItem('claudeGames.lang'); localStorage.removeItem('skiTT.v1'); location.reload(); 'reload'", "wait": 4500 },
+ { "label": "title", "js": "game.hold(true); game.autoPause = false; game.step(2.6); 'ok'", "wait": 600, "shot": "1-title" },
+ { "label": "race1p", "js": "game.start({ course: 'forest', mode: 'race', who: 'teddy', levels: { teddy: 'easy' } }); game.step(3.2); game.autopilot('good'); game.step(3); JSON.stringify(game.info().skiers.map(s => s.s))", "wait": 600, "shot": "2-race1p" },
+ { "label": "buddy", "js": "game.buddy(); game.step(1.1); JSON.stringify(game.info().buddy)", "wait": 600, "shot": "3-buddy" },
+ { "label": "results", "js": "let n = 0; while (game.info().state !== 'results' && n++ < 40) game.step(2, true); game.step(1.6); document.getElementById('rHead').textContent", "wait": 600, "shot": "4-results" },
+ { "label": "race2p", "js": "game.start({ course: 'mountain', mode: 'trial', who: 'both', levels: { teddy: 'normal', tommy: 'easy' } }); game.step(3.2); game.autopilot('good'); game.step(4); JSON.stringify(game.info().skiers.map(s => s.s))", "wait": 600, "shot": "5-race2p" },
+ { "label": "pause", "js": "game.pause(true); game.step(0.1); 'paused'", "wait": 500, "shot": "6-pause" },
+ { "label": "zh", "js": "game.pause(false); game.home(); Kit.lang.set('zh'); game.step(0.5); 'zh'", "wait": 800, "shot": "7-title-zh" }
+]
