@@ -839,7 +839,7 @@
     const bs = Math.round(Math.max(58, Math.min(84, Math.min(w, h) * 0.11)));
     Object.assign(bb.style, { left: `${Math.round(w / 2 - bs / 2)}px`, top: `${Math.round(h - safeB - bs)}px` });
     if (two && side) Object.assign(fb.style, { left: `${Math.round(w / 2 - bs / 2)}px`, top: `${Math.round(h - safeB - pad - bs - 18)}px` });
-    else Object.assign(fb.style, { left: `${Math.round(w - bs - 12)}px`, top: `${Math.round(h / 2 - bs / 2)}px` });
+    else Object.assign(fb.style, { left: `${Math.round(w / 2 - bs / 2)}px`, top: `${Math.round(h / 2 - bs / 2)}px` }); // on the split line, between the pads
     // the clock and chips under the slope map, one block per view
     infos.forEach((d, i) => {
       let left = 72, top = 62;
